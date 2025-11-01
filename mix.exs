@@ -1,9 +1,9 @@
-defmodule ElixirTemplate.MixProject do
+defmodule Polis.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :my_app,
+      app: :polis,
       version: "0.1.0",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
@@ -14,7 +14,8 @@ defmodule ElixirTemplate.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {Polis.Application, []}
     ]
   end
 
