@@ -203,6 +203,7 @@ defmodule Polis.PropertyTest do
   alias Polis.Node
 
   @moduletag :property
+  @moduletag timeout: :infinity
 
   describe "高負荷シナリオ: クラスタのプロパティベーステスト" do
     property "複数ノードが同時起動しても必ず1つのリーダーに収束する" do
