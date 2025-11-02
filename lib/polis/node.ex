@@ -130,8 +130,13 @@ defmodule Polis.Node do
     end
   end
 
+  def handle_info(:election_timeout, s),
+    do: {:noreply, s}
+
   def handle_info(:heartbeat_tick, %__MODULE__{role: :leader} = s),
     do: {:noreply, send_append_entries(s) |> schedule_heartbeat()}
+
+  def handle_info(:heartbeat_tick, s), do: {:noreply, s}
 
   def handle_info({:request_vote, from_pid, term, _candidate_id}, s)
       when term > s.term, do: {:noreply, step_down(s, term) |> maybe_vote(from_pid)}
@@ -192,9 +197,9 @@ defmodule Polis.Node do
     cluster = Keyword.fetch!(opts, :cluster)
 
     Enum.reduce(opts, %{cluster: cluster}, fn
-      {:election_min, v}, s when is_integer(v) and v > 0 -> %{s | election_min: v}
-      {:election_max, v}, s when is_integer(v) and v > 0 -> %{s | election_max: v}
-      {:heartbeat_ms, v}, s when is_integer(v) and v > 0 -> %{s | heartbeat_ms: v}
+      {:election_min, v}, s when is_integer(v) and v > 0 -> Map.put(s, :election_min, v)
+      {:election_max, v}, s when is_integer(v) and v > 0 -> Map.put(s, :election_max, v)
+      {:heartbeat_ms, v}, s when is_integer(v) and v > 0 -> Map.put(s, :heartbeat_ms, v)
       _, s -> s
     end)
   end
@@ -253,8 +258,6 @@ defmodule Polis.Node do
   end
 
   defp become_leader(%__MODULE__{role: :candidate} = s) do
-    Logger.debug("[#{inspect(self())}] Becoming leader for term #{s.term}")
-
     %{s | role: :leader, voted_for: nil, voters: MapSet.new(), member_snapshot: []}
     |> cancel_election_timer()
     |> schedule_heartbeat()
@@ -301,7 +304,7 @@ defmodule Polis.Node do
   defp notify_if_role_change(s, old_role) when s.role === old_role, do: s
 
   defp notify_if_role_change(s, _old_role) do
-    Enum.each(s.subscribers, fn subscriber ->
+    Enum.each(s.subscribers, fn {subscriber, _ref} ->
       send(subscriber, {:polis_role_changed, self(), s.role})
     end)
 
