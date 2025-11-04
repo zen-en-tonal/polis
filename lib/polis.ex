@@ -93,4 +93,16 @@ defmodule Polis do
   """
   @spec unsubscribe(server(), pid()) :: :ok
   def unsubscribe(pid, subscriber \\ self()), do: Polis.Node.unsubscribe(pid, subscriber)
+
+  @doc false
+  @spec child_spec(keyword()) :: Supervisor.child_spec()
+  def child_spec(opts) do
+    %{
+      id: Keyword.get(opts, :name, {Polis, opts.cluster}),
+      start: {Polis, :start_link, [opts]},
+      type: :worker,
+      restart: :permanent,
+      shutdown: 500
+    }
+  end
 end
