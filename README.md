@@ -27,9 +27,9 @@ This library is not published on Hex as of now. Add it as a Git dependency in yo
 
 ```elixir
 def deps do
-	[
-		{:polis, git: "https://github.com/zen-en-tonal/polis", tag: "v0.0.1"}
-	]
+  [
+    {:polis, git: "https://github.com/zen-en-tonal/polis", tag: "v0.0.1"}
+  ]
 end
 ```
 
@@ -61,10 +61,10 @@ Subscribe to role-change notifications:
 Polis.subscribe(a)  # subscriber defaults to the calling process
 
 receive do
-	{:polis_role_changed, node_pid, new_role} ->
-		IO.inspect({:changed, node_pid, new_role})
+  {:polis_role_changed, node_pid, new_role} ->
+    IO.inspect({:changed, node_pid, new_role})
 after 1_000 ->
-		:noop
+  :noop
 end
 ```
 
@@ -82,10 +82,10 @@ Example:
 
 ```elixir
 {:ok, pid} = Polis.start_link(
-	cluster: :demo,
-	election_min: 50,
-	election_max: 100,
-	heartbeat_ms: 20
+  cluster: :demo,
+  election_min: 50,
+  election_max: 100,
+  heartbeat_ms: 20
 )
 ```
 
